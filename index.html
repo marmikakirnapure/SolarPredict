@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Energy Generation and Savings Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" href="/"><span class="leaf">❧</span> Solar Energy Generation and Savings Predictor</a>
+    <nav>
+        <a class="active" href="/">Home</a>
+        <a href="#about">About</a>
+        <a href="#predict">Predict</a>
+        <a href="#footer">Contact</a>
+    </nav>
+    <div class="sun-art"><span class="sun"></span><span class="panel-art"></span></div>
+</header>
+
+<main class="layout">
+    <section class="input-card" id="predict">
+        <div class="form-title">
+            <span class="title-icon">▤</span>
+            <div>
+                <h2>Enter Solar Panel Details</h2>
+                <p>Provide the required input values to predict energy generation and savings using multiple machine learning models.</p>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="field">
+                <label for="panel_capacity_kw">Panel Capacity (kW)</label>
+                <input id="panel_capacity_kw" name="panel_capacity_kw" type="number" min="0.01" step="any" placeholder="e.g. 5" value="{{ form.get('panel_capacity_kw', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="sunlight_hours">Sunlight Hours (hours/day)</label>
+                <input id="sunlight_hours" name="sunlight_hours" type="number" min="0" max="24" step="any" placeholder="e.g. 6" value="{{ form.get('sunlight_hours', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="solar_irradiance_kwh_m2_day">Solar Irradiance (kWh/m²/day)</label>
+                <input id="solar_irradiance_kwh_m2_day" name="solar_irradiance_kwh_m2_day" type="number" min="0" step="any" placeholder="e.g. 5" value="{{ form.get('solar_irradiance_kwh_m2_day', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="temperature_c">Temperature (°C)</label>
+                <input id="temperature_c" name="temperature_c" type="number" step="any" placeholder="e.g. 30" value="{{ form.get('temperature_c', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="cloud_cover_pct">Cloud Cover (%)</label>
+                <input id="cloud_cover_pct" name="cloud_cover_pct" type="number" min="0" max="100" step="any" placeholder="e.g. 20" value="{{ form.get('cloud_cover_pct', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="humidity_pct">Humidity (%)</label>
+                <input id="humidity_pct" name="humidity_pct" type="number" min="0" max="100" step="any" placeholder="e.g. 60" value="{{ form.get('humidity_pct', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="panel_tilt_deg">Panel Tilt Angle (°)</label>
+                <input id="panel_tilt_deg" name="panel_tilt_deg" type="number" min="0" max="90" step="any" placeholder="e.g. 25" value="{{ form.get('panel_tilt_deg', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="panel_efficiency_pct">Panel Efficiency (%)</label>
+                <input id="panel_efficiency_pct" name="panel_efficiency_pct" type="number" min="0" max="100" step="any" placeholder="e.g. 18" value="{{ form.get('panel_efficiency_pct', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="system_loss_pct">System Loss (%)</label>
+                <input id="system_loss_pct" name="system_loss_pct" type="number" min="0" max="100" step="any" placeholder="e.g. 10" value="{{ form.get('system_loss_pct', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="month">Month</label>
+                <select id="month" name="month" required>
+                    <option value="">Select month</option>
+                    {% for i in range(1, 13) %}
+                    <option value="{{ i }}" {% if form.get('month', '') == i|string %}selected{% endif %}>{{ months[i-1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="tariff">Electricity Tariff (₹/kWh)</label>
+                <input id="tariff" name="tariff" type="number" min="0" step="any" placeholder="e.g. 8" value="{{ form.get('tariff', '') }}" required>
+            </div>
+
+            <div class="field">
+                <label for="location">Select City</label>
+                <select id="location" name="location" required>
+                    <option value="">Select city</option>
+                    {% for area in places %}
+                    <option value="{{ area }}" {% if place == area %}selected{% endif %}>{{ area }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit">⚡ &nbsp; Predict Now</button>
+        </form>
+    </section>
+
+    <section class="dashboard">
+        <div class="summary-grid">
+            <article class="summary blue">
+                <span class="summary-icon sun-icon">☼</span>
+                <div>
+                    <strong>4</strong>
+                    <b>Machine Learning Models</b>
+                    <p>Linear Regression, KNN,<br>Decision Tree, Random Forest</p>
+                </div>
+            </article>
+
+            <article class="summary green">
+                <span class="summary-icon">▤</span>
+                <div>
+                    <small>Dataset</small>
+                    <strong>1,500</strong>
+                </div>
+            </article>
+
+            <article class="summary blue">
+                <span class="summary-icon pin">●</span>
+                <div>
+                    <small>Location</small>
+                    <strong>India</strong>
+                    <p>Solar Energy Analysis</p>
+                </div>
+            </article>
+        </div>
+
+        {% if show_results %}
+        <section class="result-card best-card">
+            <h2><span class="section-icon trophy">★</span> Best Performing Model</h2>
+
+            <div class="best-result">
+                <span class="check">✓</span>
+                <div class="best-name">
+                    <strong>{{ best_model }}</strong>
+                    <p>Lowest RMSE on test dataset</p>
+                    <p class="energy">{{ "%.2f"|format(best_prediction) }} kWh/day &nbsp; · &nbsp; ₹{{ "%.2f"|format(best_savings) }}/day estimated savings</p>
+                </div>
+
+                <div class="best-metrics">
+                    <div>
+                        <small>MAE</small>
+                        <strong>{{ "%.2f"|format(metrics[best_model]["MAE"]) }}</strong>
+                    </div>
+                    <div>
+                        <small>RMSE</small>
+                        <strong>{{ "%.2f"|format(metrics[best_model]["RMSE"]) }}</strong>
+                    </div>
+                    <div>
+                        <small>R² Score</small>
+                        <strong>{{ "%.2f"|format(metrics[best_model]["R2"]) }}</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="result-card">
+            <h2><span class="section-icon bars">▥</span> Dataset Evaluation Results</h2>
+            <p class="subheading">Comparison of model performance on the test dataset.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>MAE</th>
+                            <th>RMSE</th>
+                            <th>R² Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, values in metrics.items() %}
+                        <tr {% if name == best_model %}class="best-row"{% endif %}>
+                            <td>
+                                {{ name }}
+                                {% if name == best_model %}
+                                <span class="best-pill">Best</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ "%.3f"|format(values["MAE"]) }}</td>
+                            <td>{{ "%.3f"|format(values["RMSE"]) }}</td>
+                            <td>{{ "%.3f"|format(values["R2"]) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="hint">Lower MAE and RMSE are better. An R² closer to 1 generally indicates a better fit.</p>
+        </section>
+
+        <section class="result-card">
+            <h2><span class="section-icon target">◎</span> User Input Prediction Results</h2>
+            <p class="subheading">Predicted daily energy generation and estimated savings for your input conditions.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Predicted Energy (kWh/day)</th>
+                            <th>Estimated Savings (₹/day)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, energy in predictions.items() %}
+                        <tr {% if name == best_model %}class="best-row"{% endif %}>
+                            <td>
+                                {{ name }}
+                                {% if name == best_model %}
+                                <span class="best-pill">Best</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ "%.2f"|format(energy) }}</td>
+                            <td>{{ "%.2f"|format(savings[name]) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <a class="again" href="/">↻ &nbsp; New Prediction</a>
+        </section>
+
+        {% else %}
+        <section class="welcome-card" id="about">
+            <div class="welcome-sun">☀</div>
+            <div>
+                <h2>Ready to predict your solar savings?</h2>
+                <p>Enter your solar panel and weather details, then select <b>Predict Now</b>. Your model comparisons and estimated savings will appear here.</p>
+            </div>
+        </section>
+        {% endif %}
+    </section>
+</main>
+
+<footer id="footer">SolarPredict · Solar Energy Generation and Savings Predictor</footer>
+</body>
+</html>
