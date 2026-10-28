@@ -42,7 +42,7 @@ def home():
         try:
             place = form["location"]
             if place not in places:
-                raise ValueError("Please choose a Nagpur area.")
+                raise ValueError("Please choose correct city.")
 
             values = {
                 "panel_capacity_kw": float(form["panel_capacity_kw"]),
